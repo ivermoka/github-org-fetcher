@@ -21,7 +21,9 @@ type repoInfo struct {
 
 func main() {
 	var org string
+	var authToken string
 	flag.StringVar(&org, "o", "", "Organization name")
+	flag.StringVar(&authToken, "a", "", "GitHub Auth token")
 
 	flag.Parse()
 
@@ -45,7 +47,7 @@ func main() {
 		printAnimatedDots(stopCh)
 	}()
 	fmt.Fprintln(os.Stderr, "checking repos for organization: ", org)
-	getJSON(org)
+	getJSON(org, authToken)
 	readFile()
 	fmt.Fprintln(os.Stderr, "repositories.json created")
 }
@@ -67,14 +69,17 @@ func printAnimatedDots(stopCh <-chan struct{}) {
 	}
 }
 
-func getJSON(org string) {
+func getJSON(org string, authToken string) {
+	if authToken == "" {
+		log.Fatalln("no auth token provided. exiting program.")
+	}
 	var repos []repoInfo
 	// pagination for github api
 	for page := 1; ; page++ {
 		url := fmt.Sprintf("https://api.github.com/orgs/%s/repos?page=%d", org, page)
 		cmd := exec.Command(
 			"curl",
-			"-H", "Authorization: Bearer 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",
+			"-H", "Authorization: Bearer "+authToken,
 			"-H", "Accept: application/vnd.github.v3+json",
 			"-s", url,
 		)
