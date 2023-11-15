@@ -1,3 +1,3 @@
-module github.com/ivermoka/go2
+module github.com/ivermoka/github-org-fetcher
 
 go 1.21.2
